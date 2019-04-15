@@ -11,16 +11,32 @@ class Publication
 	
 	function __construct()
 	{
+		// initialize database
 		$this->db = new Database();
+
+		// Retrive Main publication of the business day
+
 		$this->main_publication_business_day = $this->db->get();
 	}
 
 
+	//  This controller method handle the creation of new region publication business day 
+
 	public function save()
 	{
+		// create parent publication of Pages,Articles and Images
 		$this->business_day_region = $this->db->create(['Name' => 'Business Day KZN']);
 
+
+		// loop through the main publication business day and save duplicate to their region
+
 		foreach ($this->main_publication_business_day as $duplicate) {
+
+			/**
+			* as Article has one to many relationship ( two page can belong to one article )
+			* I created it first and save its object that will be later used when creating its corresponding child ( Image)
+			*  $this->db->create return created object
+			*/
 
 			$this->article = $this->db->create([
 				'Title' =>$duplicate->article->Title,
@@ -28,6 +44,10 @@ class Publication
 				'Content' = $duplicate->pages->article->Content,
 				'Start_Page_Id' = $duplicate->pages->article->Start_Page_Id
 			]);
+
+
+			// if we have more than one pages per article, 
+			// let loop though each pages and create create each page before assign it to article
 
 
 			if (count(($duplicate->pages) > 1) {
